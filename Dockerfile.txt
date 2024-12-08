@@ -1,0 +1,28 @@
+# שלב 1: בניית הקוד של היישום
+FROM node:18-alpine AS builder
+
+# מיקום העבודה בקונטיינר
+WORKDIR /app
+
+# העתקת קובצי הפרויקט
+COPY package*.json ./
+
+# התקנת התלויות של הפרויקט
+RUN npm install
+
+# העתקת כל שאר קבצי הפרויקט
+COPY . .
+
+# בניית היישום (קומפילציה) לפרודקשן
+RUN npm run build
+
+# שלב 2: הרצת היישום שנבנה
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# העתקת התוצאות מהשלב הקודם
+COPY --from=builder /app ./
+
+# הרצת היישום
+CMD ["npm", "run", "start"]
